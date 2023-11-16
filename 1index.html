@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black; /* Set the background color to black */
+        }
+
+        .eye-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            transform: translate(-50%, -50%);
+        }
+
+        .eye {
+            width: 100px;
+            height: 100px;
+            background-color: black; /* Set the eye background color to black */
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            border: 2px solid white; /* Add a white border */
+            margin: 0 10px; /* Add margin between the eyes */
+        }
+
+        .pupil {
+            width: 80px; /* Increase the pupil width */
+            height: 80px; /* Increase the pupil height */
+            background-color: white; /* Set the pupil background color to white */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 100ms;
+        }
+    </style>
+</head>
+<body>
+    <div class="eye-container">
+        <div class="eye" id="left-eye">
+            <div class="pupil"></div>
+        </div>
+        <div class="eye" id="right-eye">
+            <div class="pupil"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('mousemove', updateEyePosition);
+
+        function updateEyePosition(event) {
+            const eyeContainer = document.querySelector('.eye-container');
+            const containerRect = eyeContainer.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+
+            moveEye(document.getElementById('left-eye'), event.clientX, event.clientY, containerCenterX, containerCenterY);
+            moveEye(document.getElementById('right-eye'), event.clientX, event.clientY, containerCenterX, containerCenterY);
+        }
+
+        function moveEye(eye, mouseX, mouseY, containerCenterX, containerCenterY) {
+            const eyeRect = eye.getBoundingClientRect();
+            const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+            const angle = Math.atan2(mouseY - containerCenterY, mouseX - containerCenterX);
+            const distance = Math.min(eyeRect.width / 4, eyeRect.height / 4);
+
+            const offsetX = Math.cos(angle) * distance;
+            const offsetY = Math.sin(angle) * distance;
+
+            eye.querySelector('.pupil').style.transform = `translate(-50%, -50%) translate(${offsetX}px, ${offsetY}px)`;
+        }
+
+       document.addEventListener('DOMContentLoaded', () => {
+            // 깜박임 효과 추가
+            setInterval(blinkEyes, 5000); // 5초 간격으로 깜박임
+
+            // 문서 전체에 대한 클릭 이벤트 리스너 추가
+            document.addEventListener('click', () => {
+                // 클릭할 때마다 눈 감았다 뜨는 효과 실행
+                const eyes = document.querySelectorAll('.eye');
+                eyes.forEach(eye => {
+                    toggleEyeState(eye);
+                });
+            });
+
+            function blinkEyes() {
+                const pupils = document.querySelectorAll('.pupil');
+                pupils.forEach(pupil => {
+                    // 눈 감기
+                    pupil.style.transform = 'translate(-50%, -50%) scale(1, 0)';
+
+                    setTimeout(() => {
+                        // 눈 뜨기
+                        pupil.style.transform = 'translate(-50%, -50%) scale(1, 1)';
+                    }, 200);
+                });
+            }
+
+            function toggleEyeState(eye) {
+                const pupil = eye.querySelector('.pupil');
+                // 현재 상태 확인
+                const isClosed = pupil.style.transform.includes('scale(1, 0)');
+
+                // 상태에 따라 열기 또는 닫기
+                if (isClosed) {
+                    // 눈 뜨기
+                    pupil.style.transform = 'translate(-50%, -50%) scale(1, 1)';
+                } else {
+                    // 눈 감기
+                    pupil.style.transform = 'translate(-50%, -50%) scale(1, 0)';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
